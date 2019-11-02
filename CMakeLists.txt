@@ -6,5 +6,5 @@ set( CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -Wall" )
 
 include( ${CMAKE_CURRENT_LIST_DIR}/interface/CMakeLists.txt )
 
-add_library( RPiSPIIO MODULE  ${CMAKE_CURRENT_LIST_DIR}/signal_io_rpi_spi.c )
+add_library( RPiSPIIO MODULE  ${CMAKE_CURRENT_LIST_DIR}/signal_io_rpi_spi.c ${CMAKE_CURRENT_LIST_DIR}/bcm2835/bcm2835.c )
 set_target_properties( RPiSPIIO PROPERTIES PREFIX "" )
