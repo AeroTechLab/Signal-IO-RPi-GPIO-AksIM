@@ -24,7 +24,6 @@
 #include "bcm2835/bcm2835.h"
 
 int32_t inputValues[ 2 ];
-uint16_t inputData[ 2 ];
 
 DECLARE_MODULE_INTERFACE( SIGNAL_IO_INTERFACE );
 
@@ -40,9 +39,9 @@ long int InitDevice( const char* deviceName )
     fprintf( stderr, "bcm2835_spi_begin failed. Are you running as root??\n" );
     return SIGNAL_IO_DEVICE_INVALID_ID;
   }
-  bcm2835_spi_setBitOrder( BCM2835_SPI_BIT_ORDER_MSBFIRST );      // The default
-  bcm2835_spi_setDataMode( BCM2835_SPI_MODE0 );                   // The default
-  bcm2835_spi_setClockDivider( BCM2835_SPI_CLOCK_DIVIDER_512 );
+  bcm2835_spi_setBitOrder( BCM2835_SPI_BIT_ORDER_MSBFIRST );      
+  bcm2835_spi_setDataMode( BCM2835_SPI_MODE1 );                   
+  bcm2835_spi_setClockDivider( BCM2835_SPI_CLOCK_DIVIDER_16384 );
 
   bcm2835_spi_setChipSelectPolarity( BCM2835_SPI_CS0, LOW );      // the default
   bcm2835_spi_setChipSelectPolarity( BCM2835_SPI_CS1, LOW );      // the default
@@ -71,17 +70,19 @@ size_t Read( long int deviceID, unsigned int channel, double* ref_value )
   
   bcm2835_spi_chipSelect( ( channel == 0 ) ? BCM2835_SPI_CS0 : BCM2835_SPI_CS1 );  
   // SPI transfer buffer is output (before) and input (after)
-  bcm2835_spi_transfern( (char*) &(inputData[ channel ]), 2 );
+  uint8_t inputData[ 2 ];
+  bcm2835_spi_transfern( (char*) inputData, 2 );
+  uint16_t rawInputValue = ( ( inputData[ 0 ] << 8 ) & 0xFF00 ) + inputData[ 1 ];
   
-  int32_t overflowsNumber = inputValues[ channel ] / INT16_MAX;
+  int32_t overflowsNumber = inputValues[ channel ] / UINT16_MAX;
   if( inputValues[ channel ] < 0 ) overflowsNumber--;
-  int32_t newInputValue = overflowsNumber * UINT16_MAX + (int32_t) inputData[ channel ];
+  int32_t newInputValue = overflowsNumber * UINT16_MAX + rawInputValue;
   if( ( inputValues[ channel ] - newInputValue ) > ( UINT16_MAX / 2 ) ) overflowsNumber++;
   if( ( inputValues[ channel ] - newInputValue ) < ( -UINT16_MAX / 2 ) ) overflowsNumber--;
-  inputValues[ channel ] = overflowsNumber * UINT16_MAX + (int32_t) inputData[ channel ];
+  inputValues[ channel ] = overflowsNumber * UINT16_MAX + rawInputValue;
   
   *ref_value = (double) inputValues[ channel ];
-
+  printf( "input=%x, corrected=%d, return=%g\n", rawInputValue, inputValues[ channel ], *ref_value );
   return 1;
 }
 
