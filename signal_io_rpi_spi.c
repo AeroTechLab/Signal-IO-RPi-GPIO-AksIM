@@ -26,7 +26,7 @@
 #define INT16_MAX 65536
 
 int32_t inputValues[ 2 ];
-uint16_t outputData[ 2 ];
+uint16_t inputData[ 2 ];
 
 DECLARE_MODULE_INTERFACE( SIGNAL_IO_INTERFACE );
 
@@ -72,15 +72,15 @@ size_t Read( long int deviceID, unsigned int channel, double* ref_value )
   if( channel > 2 ) return 0;
   
   bcm2835_spi_chipSelect( ( channel == 0 ) ? BCM2835_SPI_CS0 : BCM2835_SPI_CS1 );  
-  uint16_t data = outputData[ channel ];
-  bcm2835_spi_transfern( (char*) &data, 2 );
+  // SPI transfer buffer is output (before) and input (after)
+  bcm2835_spi_transfern( (char*) &(inputData[ channel ]), 2 );
   
   int32_t overflowsNumber = inputValues[ channel ] / INT16_MAX;
   if( inputValues[ channel ] < 0 ) overflowsNumber--;
-  int32_t newInputValue = overflowsNumber * INT16_MAX + (int32_t) data;
+  int32_t newInputValue = overflowsNumber * INT16_MAX + (int32_t) inputData[ channel ];
   if( ( inputValues[ channel ] - newInputValue ) > ( INT16_MAX / 2 ) ) overflowsNumber++;
   if( ( inputValues[ channel ] - newInputValue ) < ( -INT16_MAX / 2 ) ) overflowsNumber--;
-  inputValues[ channel ] = overflowsNumber * INT16_MAX + (int32_t) data;
+  inputValues[ channel ] = overflowsNumber * INT16_MAX + (int32_t) inputData[ channel ];
   
   *ref_value = (double) inputValues[ channel ];
 
@@ -106,21 +106,12 @@ bool CheckInputChannel( long int deviceID, unsigned int channel )
 
 bool Write( long int deviceID, unsigned int channel, double value )
 {
-  /*if( channel > 2 )*/ return false;
-  
-  //bcm2835_spi_chipSelect( ( channel == 0 ) ? BCM2835_SPI_CS0 : BCM2835_SPI_CS1 );  
-  //outputData[ channel ] = (uint16_t) value;
-  //bcm2835_spi_transfern( (char*) &(outputData[ channel ]), 2 );
-  //outputData[ channel ] = (uint16_t) value;
-  
-  //return true;
+  return false;
 }
 
 bool AcquireOutputChannel( long int deviceID, unsigned int channel )
 {
-  /*if( channel > 2 )*/ return false;
-  
-  //return true;
+  return false;
 }
 
 void ReleaseOutputChannel( long int deviceID, unsigned int channel )
