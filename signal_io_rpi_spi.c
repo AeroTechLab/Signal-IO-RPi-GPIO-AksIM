@@ -23,8 +23,6 @@
 
 #include "bcm2835/bcm2835.h"
 
-#define INT16_MAX 65536
-
 int32_t inputValues[ 2 ];
 uint16_t inputData[ 2 ];
 
@@ -77,10 +75,10 @@ size_t Read( long int deviceID, unsigned int channel, double* ref_value )
   
   int32_t overflowsNumber = inputValues[ channel ] / INT16_MAX;
   if( inputValues[ channel ] < 0 ) overflowsNumber--;
-  int32_t newInputValue = overflowsNumber * INT16_MAX + (int32_t) inputData[ channel ];
-  if( ( inputValues[ channel ] - newInputValue ) > ( INT16_MAX / 2 ) ) overflowsNumber++;
-  if( ( inputValues[ channel ] - newInputValue ) < ( -INT16_MAX / 2 ) ) overflowsNumber--;
-  inputValues[ channel ] = overflowsNumber * INT16_MAX + (int32_t) inputData[ channel ];
+  int32_t newInputValue = overflowsNumber * UINT16_MAX + (int32_t) inputData[ channel ];
+  if( ( inputValues[ channel ] - newInputValue ) > ( UINT16_MAX / 2 ) ) overflowsNumber++;
+  if( ( inputValues[ channel ] - newInputValue ) < ( -UINT16_MAX / 2 ) ) overflowsNumber--;
+  inputValues[ channel ] = overflowsNumber * UINT16_MAX + (int32_t) inputData[ channel ];
   
   *ref_value = (double) inputValues[ channel ];
 
