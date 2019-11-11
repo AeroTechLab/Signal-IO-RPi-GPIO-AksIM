@@ -82,7 +82,7 @@ size_t Read( long int deviceID, unsigned int channel, double* ref_value )
   inputValues[ channel ] = overflowsNumber * UINT16_MAX + rawInputValue;
   
   *ref_value = (double) inputValues[ channel ];
-  printf( "input=%x, corrected=%d, return=%g\n", rawInputValue, inputValues[ channel ], *ref_value );
+
   return 1;
 }
 
