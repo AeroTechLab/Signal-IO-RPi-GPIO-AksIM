@@ -1,23 +1,24 @@
-////////////////////////////////////////////////////////////////////////////////
-//                                                                            //
-//  Copyright (c) 2019 Leonardo Consoni <leonardjc@protonmail.com>            //
-//                                                                            //
-//  This file is part of Signal-IO-RPi-SPI.                                   //
-//                                                                            //
-//  Signal-IO-RPi-SPI is free software: you can redistribute it and/or modify //
-//  it under the terms of the GNU Lesser General Public License as published  //
-//  by the Free Software Foundation, either version 3 of the License, or      //
-//  (at your option) any later version.                                       //
-//                                                                            //
-//  Signal-IO-RPi-SPI is distributed in the hope that it will be useful,      //
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of            //
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the              //
-//  GNU Lesser General Public License for more details.                       //
-//                                                                            //
-//  You should have received a copy of the GNU Lesser General Public License  //
-//  along with Signal-IO-RPi-SPI. If not, see <http://www.gnu.org/licenses/>. //
-//                                                                            //
-//////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////
+//                                                                             //
+//  Copyright (c) 2019 Leonardo Consoni <leonardjc@protonmail.com>             //
+//                                                                             //
+//  This file is part of Signal-IO-RPi-GPIO-AksIM.                             //
+//                                                                             //
+//  Signal-IO-RPi-GPIO-AksIM is free software: you can redistribute it and/or  //
+//  modify it under the terms of the GNU Lesser General Public License as      //
+//  published by the Free Software Foundation, either version 3 of the         //
+//  License, or (at your option) any later version.                            //
+//                                                                             //
+//  Signal-IO-RPi-GPIO-AksIM is distributed in the hope that it will be        //
+//  useful, but WITHOUT ANY WARRANTY; without even the implied warranty of     //
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the               //
+//  GNU Lesser General Public License for more details.                        //
+//                                                                             //
+//  You should have received a copy of the GNU Lesser General Public License   //
+//  along with Signal-IO-RPi-GPIO-AksIM. If not, see                           //
+//  <http://www.gnu.org/licenses/>.                                            //
+//                                                                             //
+///////////////////////////////////////////////////////////////////////////////// 
 
 #include "interface/signal_io.h"
 
@@ -27,8 +28,10 @@ int32_t inputValues[ 2 ];
 
 DECLARE_MODULE_INTERFACE( SIGNAL_IO_INTERFACE );
 
-long int InitDevice( const char* deviceName )
+long int InitDevice( const char* configuration )
 {  
+  uint32_t speedHz = (uint32_t) strtoul( configuration, NULL, 0 );
+  
   if( !bcm2835_init() )
   {
     fprintf( stderr, "bcm2835_init failed. Are you running as root??\n" );
@@ -41,7 +44,7 @@ long int InitDevice( const char* deviceName )
   }
   bcm2835_spi_setBitOrder( BCM2835_SPI_BIT_ORDER_MSBFIRST );      
   bcm2835_spi_setDataMode( BCM2835_SPI_MODE1 );                   
-  bcm2835_spi_setClockDivider( BCM2835_SPI_CLOCK_DIVIDER_16384 );
+  bcm2835_spi_set_speed_hz( speedHz );
 
   bcm2835_spi_setChipSelectPolarity( BCM2835_SPI_CS0, LOW );      // the default
   bcm2835_spi_setChipSelectPolarity( BCM2835_SPI_CS1, LOW );      // the default
